@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activity Status Tables (Auto-refresh)</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .table-container {
+            display: flex;
+            justify-content: space-between;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            table-layout: fixed;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .timestamp-col {
+            width: 18%;
+        }
+        .occupancy-col {
+            width: 13%;
+        }
+        .other-col {
+            width: 10%;
+        }
+        /* Yeni stiller */
+        #occupiedTable td {
+            background-color: #e6ffe6; /* Soluk yeşil */
+        }
+        #notOccupiedTable td {
+            background-color: #ffe6e6; /* Soluk kırmızı */
+        }
+        #occupiedTable th {
+            background-color: #4CAF50; /* Koyu yeşil */
+            color: white;
+        }
+        #notOccupiedTable th {
+            background-color: #F44336; /* Koyu kırmızı */
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>Realtime Activity Prediction</h1>
+    <div class="table-container">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-6">
+                    <h2>Occupied</h2>
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="occupiedTable">
+                            <thead>
+                                <tr>
+                                    <th class="timestamp-col">TimeStamp</th>
+                                    <th class="other-col">Room</th>
+                                    <th class="other-col">CO2</th>
+                                    <th class="other-col">Humidity</th>
+                                    <th class="other-col">Light</th>
+                                    <th class="other-col">Temp</th>
+                                    <th class="occupancy-col">Occupancy</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Occupied data will be inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <h2>Not Occupied</h2>
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="notOccupiedTable">
+                            <thead>
+                                <tr>
+                                    <th class="timestamp-col">TimeStamp</th>
+                                    <th class="other-col">Room</th>
+                                    <th class="other-col">CO2</th>
+                                    <th class="other-col">Humidity</th>
+                                    <th class="other-col">Light</th>
+                                    <th class="other-col">Temp</th>
+                                    <th class="occupancy-col">Occupancy</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Not occupied data will be inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateTables() {
+            $.ajax({
+                url: 'http://localhost:5000',
+                method: 'GET',
+                success: function(data) {
+                    var occupiedTableBody = $('#occupiedTable tbody');
+                    var notOccupiedTableBody = $('#notOccupiedTable tbody');
+                    
+                    occupiedTableBody.empty();
+                    notOccupiedTableBody.empty();
+
+                    $.each(data, function(i, item) {
+                        var row = $('<tr>').append(
+                            $('<td>').text(item.timestamp),
+                            $('<td>').text(item.roomId),
+                            $('<td>').text(item.co2),
+                            $('<td>').text(item.humidity),
+                            $('<td>').text(item.light),
+                            $('<td>').text(item.temperature),
+                            $('<td>').text(item.activity)
+                        );
+
+                        if (item.activity === 'occupied') {
+                            occupiedTableBody.append(row);
+                        } else if (item.activity === 'not occupied') {
+                            notOccupiedTableBody.append(row);
+                        }
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching data:', error);
+                    $('#occupiedTable tbody, #notOccupiedTable tbody').html('<tr><td colspan="7">Error loading data</td></tr>');
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            // İlk veri yüklemesi
+            updateTables();
+
+            // Her 1 saniyede bir veriyi güncelle
+            setInterval(updateTables, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+version: '3.8'
+services:
+  spark:
+    container_name: spark
+    deploy:
+      resources:
+        limits:
+          cpus: '6'
+          memory: "6g"
+    image: veribilimiokulu/pyspark-3.4.1_python-3.8:1.0
+    ports:
+      - "8888:8888"
+      - "4041:4040"
+      - "5000:5000"
+    networks:
+      - vbo
+    volumes:
+      - ./spark/examples:/opt/examples
+    command: sleep infinity
+  kafka:
+    container_name: kafka
+    image: erkansirin78/kafka:3.2.0
+    build:
+      context: ./kafka
+    ports:
+      - "9092:9092"
+      - "9091:9091"
+    networks:
+      - vbo
+    volumes:
+      - ./kafka/config/server.properties:/kafka/config/server.properties
+  postgresql:
+    restart: always
+    image: postgres:15
+    container_name: postgresql
+    ports:
+      - "5432:5432"
+    networks:
+      - vbo
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=Ankara06
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+volumes:
+  postgres_data:
+
+
+networks:
+  vbo:
