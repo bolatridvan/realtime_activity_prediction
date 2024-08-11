@@ -18,7 +18,7 @@ To start the Docker environment, run the following command:
 
 ```bash
 docker-compose up -d
-
+```
 
 Manipulating Data and Saving The Model
 
