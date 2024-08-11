@@ -25,27 +25,31 @@ docker-compose up -d
 Sensor data from different rooms is merged and stored as parquet files. The entire dataset is split into training and testing data. The test data is sent to Kafka using [this data generator repository](https://github.com/erkansirin78/data-generator).
 
 Run the following scripts to preprocess the data and train the model:
-
+```bash
 python scripts/preprocess.py
-then
 python scripts/model.py
+```
+Note: preprocess.py and model.py need to be executed only once.
 
-preprocess.py and model.py run just one time. 
+## Predicting and Consuming 
 
-Predicting and Consuming 
+Spark Streaming is used to read test data from Kafka and make predictions. The predictions are then stored in a PostgreSQL table.
 
-Spark Streaming is used in order to read test data from kafka and make predictions. Predictions are saved into a postgresql table. 
+Run the following command to start the Spark Streaming job: 
 
+```bash
 spark-submit --master local \
 --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.4.1,io.delta:delta-core_2.12:2.4.0 \
 scripts/consumer.py
-
-Web UI
+```
+## Web UI
 
 Predictions are sent to flask web server and printed on the browser.
 
+To start the web server, run:
+```bash
 python scripts/server/app.py
-
+```
 
 
 
