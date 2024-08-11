@@ -20,9 +20,11 @@ To start the Docker environment, run the following command:
 docker-compose up -d
 ```
 
-Manipulating Data and Saving The Model
+## Manipulating Data and Saving The Model
 
-All sensors data is merged and written as parquet files per each room in the building. Whole data is merged and splitted as train and test data. Test data itself is sent to kafka, using this repo: https://github.com/erkansirin78/data-generator
+Sensor data from different rooms is merged and stored as parquet files. The entire dataset is split into training and testing data. The test data is sent to Kafka using [this data generator repository](https://github.com/erkansirin78/data-generator).
+
+Run the following scripts to preprocess the data and train the model:
 
 python scripts/preprocess.py
 then
